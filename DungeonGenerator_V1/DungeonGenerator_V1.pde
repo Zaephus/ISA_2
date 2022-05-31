@@ -6,7 +6,7 @@ DungeonGenerator d; //<>//
 
 void setup() {
   
-  size(1500,900);
+  size(1500,1000);
   surface.setTitle("DungeonGenerator V1");
   
   noStroke();

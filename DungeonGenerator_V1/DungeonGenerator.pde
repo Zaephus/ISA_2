@@ -5,7 +5,7 @@ enum TileType {WALL,CORRIDOR,ROOM}
 
 class DungeonGenerator {
   
-  int seed = 2098;
+  int seed = 7415;
   
   int gridWidth = 30;
   int gridHeight = 30;
@@ -26,7 +26,7 @@ class DungeonGenerator {
   
   void Generate() {
     
-    grid = new Grid(0,0,25,gridWidth+maxRoomSize,gridHeight+maxRoomSize); //<>//
+    grid = new Grid(0,0,25,gridWidth + maxRoomSize + 1,gridHeight+maxRoomSize + 1); //<>//
     grid.GridCreate(); //<>//
     
     GetSeed(); //<>//
@@ -59,10 +59,10 @@ class DungeonGenerator {
       
       safety++;
       
-      int minX = int(random(0,gridWidth));
+      int minX = int(random(0,gridWidth)) + 1;
       int maxX = minX + int(random(minRoomSize,maxRoomSize));
       
-      int minY = int(random(0,gridHeight));
+      int minY = int(random(0,gridHeight)) + 1;
       int maxY = minY + int(random(minRoomSize,maxRoomSize));
       
       Room room = new Room(minX,maxX,minY,maxY);
@@ -106,8 +106,6 @@ class DungeonGenerator {
   
   void ConnectRooms() {
     
-    //println("connect rooms");
-    
     for(int i = 0; i < roomList.size(); i++) {
       
       Room roomOne = roomList.get(i);
@@ -121,7 +119,7 @@ class DungeonGenerator {
         Room roomTwo = roomList.get(j);
         
         if(CanConnectRooms(roomOne,roomTwo)) {
-          if((roomTwo.GetCenter().x < roomOne.minX && roomTwo.GetCenter().x > roomOne.maxX) || (roomTwo.GetCenter().y < roomOne.minY && roomTwo.GetCenter().y > roomOne.maxY)) {
+          if(roomTwo.GetCenter().x < roomOne.minX || roomTwo.GetCenter().x > roomOne.maxX || roomTwo.GetCenter().y < roomOne.minY || roomTwo.GetCenter().y > roomOne.maxY) {
             if(!roomOne.connectedRooms.contains(roomTwo) && !roomTwo.connectedRooms.contains(roomOne)) {
               AllocateCorridors(roomOne,roomTwo);
             }
@@ -189,8 +187,6 @@ class DungeonGenerator {
     PVector posOne = roomOne.GetCenter();
     PVector posTwo = roomTwo.GetCenter();
     
-    boolean canConnect = true;
-    
     int corridorBuffer = 3;
     
     int dirX = posTwo.x > posOne.x ? 1 : -1;
@@ -200,7 +196,7 @@ class DungeonGenerator {
       if(dungeon.containsKey(pos)) {
         if(dungeon.get(pos) == TileType.ROOM) {
           if(!roomOne.IsPointInRoom(pos) && !roomTwo.IsPointInRoom(pos)) {
-            canConnect = false;
+            return false;
           }
         }
       }
@@ -208,7 +204,7 @@ class DungeonGenerator {
         PVector newPos = new PVector(x,posOne.y+i);
         if(dungeon.containsKey(newPos)) {
           if(dungeon.get(newPos) == TileType.CORRIDOR) {
-            canConnect = false;
+            return false;
           }
         }
       }
@@ -220,22 +216,21 @@ class DungeonGenerator {
       if(dungeon.containsKey(pos)) {
         if(dungeon.get(pos) == TileType.ROOM) {
           if(!roomOne.IsPointInRoom(pos) && !roomTwo.IsPointInRoom(pos)) {
-            canConnect = false;
+            return false;
           }
         }
       }
       for(int i = -corridorBuffer; i <= corridorBuffer; i++) {
-        PVector newPos = new PVector(x,y);
+        PVector newPos = new PVector(x+i,y);
         if(dungeon.containsKey(pos)) {
           if(dungeon.get(newPos) == TileType.CORRIDOR) {
-            canConnect = false;
+            return false;
           }
         }
       }
     }
     
-    //println(canConnect);    
-    return canConnect;
+    return true;
   
   }
   
@@ -264,7 +259,6 @@ class DungeonGenerator {
   void SpawnDungeon() {
       
     for(Map.Entry<PVector,TileType> entry : dungeon.entrySet()) {
-      //println(entry);
       
       switch(entry.getValue()) {
         
