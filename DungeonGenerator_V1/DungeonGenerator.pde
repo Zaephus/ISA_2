@@ -5,7 +5,7 @@ enum TileType {WALL,CORRIDOR,ROOM}
 
 class DungeonGenerator {
   
-  int seed = 0;
+  int seed = 2098;
   
   int gridWidth = 30;
   int gridHeight = 30;
@@ -47,6 +47,7 @@ class DungeonGenerator {
       seed = int(random(1000,9999));
     }
     randomSeed(seed);
+    println(seed);
     
   }
   
@@ -157,7 +158,7 @@ class DungeonGenerator {
   void AllocateCorridors(Room roomOne,Room roomTwo) {
     
     PVector posOne = roomOne.GetCenter();
-    PVector posTwo = roomOne.GetCenter();
+    PVector posTwo = roomTwo.GetCenter();
     
     roomOne.connectedRooms.add(roomTwo);
     roomTwo.connectedRooms.add(roomOne);
@@ -188,6 +189,8 @@ class DungeonGenerator {
     PVector posOne = roomOne.GetCenter();
     PVector posTwo = roomTwo.GetCenter();
     
+    boolean canConnect = true;
+    
     int corridorBuffer = 3;
     
     int dirX = posTwo.x > posOne.x ? 1 : -1;
@@ -197,7 +200,7 @@ class DungeonGenerator {
       if(dungeon.containsKey(pos)) {
         if(dungeon.get(pos) == TileType.ROOM) {
           if(!roomOne.IsPointInRoom(pos) && !roomTwo.IsPointInRoom(pos)) {
-            return false;
+            canConnect = false;
           }
         }
       }
@@ -205,7 +208,7 @@ class DungeonGenerator {
         PVector newPos = new PVector(x,posOne.y+i);
         if(dungeon.containsKey(newPos)) {
           if(dungeon.get(newPos) == TileType.CORRIDOR) {
-            return false;
+            canConnect = false;
           }
         }
       }
@@ -217,7 +220,7 @@ class DungeonGenerator {
       if(dungeon.containsKey(pos)) {
         if(dungeon.get(pos) == TileType.ROOM) {
           if(!roomOne.IsPointInRoom(pos) && !roomTwo.IsPointInRoom(pos)) {
-            return false;
+            canConnect = false;
           }
         }
       }
@@ -225,30 +228,35 @@ class DungeonGenerator {
         PVector newPos = new PVector(x,y);
         if(dungeon.containsKey(pos)) {
           if(dungeon.get(newPos) == TileType.CORRIDOR) {
-            return false;
+            canConnect = false;
           }
         }
       }
     }
     
-    return true;
+    //println(canConnect);    
+    return canConnect;
   
   }
   
   void AllocateWalls() {
     
-    ArrayList<PVector> keys = new ArrayList<PVector>(dungeon.keySet());
+    ArrayList<PVector> walls = new ArrayList<PVector>();
     
-    for(PVector kv : keys) {
+    for(Map.Entry<PVector,TileType> entry : dungeon.entrySet()) {
       for(int x = -1; x <= 1; x++) {
         for(int y = -1; y <= 1; y++) {
-          PVector pos = kv.add(new PVector(x,y));
+          PVector pos = PVector.add(entry.getKey(),new PVector(x,y));
           if(dungeon.containsKey(pos)) {
             continue;
           }
-          dungeon.put(pos,TileType.WALL);
+          walls.add(pos);
         }
       }
+    }
+    
+    for(PVector w : walls) {
+      dungeon.put(w,TileType.WALL);
     }
     
   }
@@ -256,7 +264,7 @@ class DungeonGenerator {
   void SpawnDungeon() {
       
     for(Map.Entry<PVector,TileType> entry : dungeon.entrySet()) {
-      println(entry);
+      //println(entry);
       
       switch(entry.getValue()) {
         
