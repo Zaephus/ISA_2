@@ -9,6 +9,9 @@ void setup() {
   size(1500,1000);
   surface.setTitle("DungeonGenerator V1");
   
+  PVector a = new PVector(1,8);
+  PVector b = new PVector(1,8);
+  
   noStroke();
   
   //grid = new Grid(10,10,25,30,30);

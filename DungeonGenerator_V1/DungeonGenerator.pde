@@ -5,7 +5,7 @@ enum TileType {WALL,CORRIDOR,ROOM}
 
 class DungeonGenerator {
   
-  int seed = 7415;
+  int seed = 3377;
   
   int gridWidth = 30;
   int gridHeight = 30;
@@ -32,6 +32,7 @@ class DungeonGenerator {
     GetSeed(); //<>//
     AllocateRooms(); //<>//
     ConnectRooms(); //<>//
+    AreRoomsConnected(roomList);
     AllocateWalls(); //<>//
     SpawnDungeon(); //<>//
     
@@ -118,15 +119,13 @@ class DungeonGenerator {
         
         Room roomTwo = roomList.get(j);
         
-        if(CanConnectRooms(roomOne,roomTwo)) {
-          if(roomTwo.GetCenter().x < roomOne.minX || roomTwo.GetCenter().x > roomOne.maxX || roomTwo.GetCenter().y < roomOne.minY || roomTwo.GetCenter().y > roomOne.maxY) {
-            if(!roomOne.connectedRooms.contains(roomTwo) && !roomTwo.connectedRooms.contains(roomOne)) {
-              AllocateCorridors(roomOne,roomTwo);
-            }
-          }
-          else {
+        if(roomTwo.GetCenter().x < roomOne.minX || roomTwo.GetCenter().x > roomOne.maxX || roomTwo.GetCenter().y < roomOne.minY || roomTwo.GetCenter().y > roomOne.maxY) {
+          if(!roomOne.connectedRooms.contains(roomTwo) && !roomTwo.connectedRooms.contains(roomOne)) {
             AllocateCorridors(roomOne,roomTwo);
           }
+        }
+        else {
+          AllocateCorridors(roomOne,roomTwo);
         }
         
       }
@@ -155,29 +154,33 @@ class DungeonGenerator {
   
   void AllocateCorridors(Room roomOne,Room roomTwo) {
     
-    PVector posOne = roomOne.GetCenter();
-    PVector posTwo = roomTwo.GetCenter();
+    if(CanConnectRooms(roomOne,roomTwo)) {
     
-    roomOne.connectedRooms.add(roomTwo);
-    roomTwo.connectedRooms.add(roomOne);
-    
-    int dirX = posTwo.x > posOne.x ? 1 : -1;
-    int x = 0;
-    for(x = int(posOne.x); x != posTwo.x; x += dirX) {
-      PVector pos = new PVector(x,posOne.y);
-      if(dungeon.containsKey(pos)) {
-        continue;
+      PVector posOne = roomOne.GetCenter();
+      PVector posTwo = roomTwo.GetCenter();
+      
+      roomOne.connectedRooms.add(roomTwo);
+      roomTwo.connectedRooms.add(roomOne);
+      
+      int dirX = posTwo.x > posOne.x ? 1 : -1;
+      int x = 0;
+      for(x = int(posOne.x); x != posTwo.x; x += dirX) {
+        PVector pos = new PVector(x,posOne.y);
+        if(dungeon.containsKey(pos)) {
+          continue;
+        }
+        dungeon.put(pos,TileType.CORRIDOR);
       }
-      dungeon.put(pos,TileType.CORRIDOR);
-    }
-    
-    int dirY = posTwo.y > posOne.y ? 1 : -1;
-    for(int y = int(posOne.y); y != posTwo.y; y += dirY) {
-      PVector pos = new PVector(x,y);
-      if(dungeon.containsKey(pos)) {
-        continue;
+      
+      int dirY = posTwo.y > posOne.y ? 1 : -1;
+      for(int y = int(posOne.y); y != posTwo.y; y += dirY) {
+        PVector pos = new PVector(x,y);
+        if(dungeon.containsKey(pos)) {
+          continue;
+        }
+        dungeon.put(pos,TileType.CORRIDOR);
       }
-      dungeon.put(pos,TileType.CORRIDOR);
+      
     }
   
   }
@@ -222,7 +225,7 @@ class DungeonGenerator {
       }
       for(int i = -corridorBuffer; i <= corridorBuffer; i++) {
         PVector newPos = new PVector(x+i,y);
-        if(dungeon.containsKey(pos)) {
+        if(dungeon.containsKey(newPos)) {
           if(dungeon.get(newPos) == TileType.CORRIDOR) {
             return false;
           }
@@ -232,6 +235,46 @@ class DungeonGenerator {
     
     return true;
   
+  }
+  
+  void AreRoomsConnected(ArrayList<Room> r) {
+    
+    ArrayList<Room> rooms = r;
+    ArrayList<Room> island = new ArrayList<Room>();
+      
+      Room roomOne = rooms.get(1);
+      rooms.remove(roomOne);
+      island.add(roomOne);
+      
+      for(int j = 0; j < roomOne.connectedRooms.size(); j++) {
+        
+        Room roomTwo = roomOne.connectedRooms.get(j);
+        if(island.contains(roomTwo)) {
+          continue;
+        }
+        else {
+          island.add(roomTwo);
+          rooms.remove(roomTwo);
+        }
+        
+        for(int k = 1; k < roomTwo.connectedRooms.size(); k++) {
+          
+          Room roomThree = roomTwo.connectedRooms.get(k);
+          if(island.contains(roomThree)) {
+            continue;
+          }
+          else {
+            island.add(roomThree);
+            rooms.remove(roomThree);
+          }
+          
+        }
+        
+      }
+    
+    println(rooms);
+    println(island);
+    
   }
   
   void AllocateWalls() {
