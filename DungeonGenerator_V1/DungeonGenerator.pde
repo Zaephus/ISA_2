@@ -5,7 +5,7 @@ enum TileType {WALL,CORRIDOR,ROOM}
 
 class DungeonGenerator {
   
-  int seed = 3377;
+  int seed = 0;
   
   int gridWidth = 30;
   int gridHeight = 30;
@@ -239,42 +239,54 @@ class DungeonGenerator {
   
   void AreRoomsConnected(ArrayList<Room> r) {
     
-    ArrayList<Room> rooms = r;
+    ArrayList<Room> rooms = new ArrayList<Room>();
+    rooms.addAll(r);
     ArrayList<Room> island = new ArrayList<Room>();
       
-      Room roomOne = rooms.get(1);
-      rooms.remove(roomOne);
-      island.add(roomOne);
+    Room roomOne = rooms.get(0);
+    rooms.remove(roomOne);
+    island.add(roomOne);
+    
+    for(int i = 0; i < roomOne.connectedRooms.size(); i++) {
       
-      for(int j = 0; j < roomOne.connectedRooms.size(); j++) {
-        
-        Room roomTwo = roomOne.connectedRooms.get(j);
-        if(island.contains(roomTwo)) {
-          continue;
-        }
-        else {
-          island.add(roomTwo);
-          rooms.remove(roomTwo);
-        }
-        
-        for(int k = 1; k < roomTwo.connectedRooms.size(); k++) {
-          
-          Room roomThree = roomTwo.connectedRooms.get(k);
-          if(island.contains(roomThree)) {
-            continue;
-          }
-          else {
-            island.add(roomThree);
-            rooms.remove(roomThree);
-          }
-          
-        }
-        
+      Room roomTwo = roomOne.connectedRooms.get(i);
+      if(island.contains(roomTwo)) {
+        continue;
       }
+      else {
+        island.add(roomTwo);
+        rooms.remove(roomTwo);
+      }
+      
+      //for(int j = 1; j < roomTwo.connectedRooms.size(); j++) {
+        
+      //  Room roomThree = roomTwo.connectedRooms.get(j);
+      //  if(island.contains(roomThree)) {
+      //    continue;
+      //  }
+      //  else {
+      //    island.add(roomThree);
+      //    rooms.remove(roomThree);
+      //  }
+        
+      //}
+      
+      
+      
+    }
     
     println(rooms);
     println(island);
+    println(roomList);
     
+    if(rooms.size() != 0) {
+      println("Rooms aren't connected.");
+    }
+    
+  }
+  
+  void ConnectIslands(ArrayList<Room> islandOne,ArrayList<Room> islandTwo) {
+  
   }
   
   void AllocateWalls() {
