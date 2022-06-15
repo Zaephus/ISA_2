@@ -79,11 +79,11 @@ class NewDungeon {
     gridWidth = int(t[0].input);
     gridHeight = int(t[1].input);
     
-    numRooms = int(t[2].input);
-    minRoomSize = int(t[3].input);
-    maxRoomSize = int(t[4].input);
+    numRooms = int(t[3].input);
+    minRoomSize = int(t[4].input);
+    maxRoomSize = int(t[5].input);
     
-    seed = int(t[5].input);
+    seed = int(t[2].input);
     
     for(int i = 0; i < buttons.length; i++) {
       buttons[i].Display();

@@ -33,14 +33,14 @@ class DungeonGenerator {
   
   }
   
-  void Generate() { //<>// //<>//
+  void Generate() {
     
-    GetSeed(); //<>//
-    AllocateRooms(); //<>//
-    ConnectRooms(); //<>//
+    GetSeed();
+    AllocateRooms();
+    ConnectRooms();
     AreRoomsConnected(roomList);
-    AllocateWalls(); //<>//
-    SpawnDungeon(); //<>//
+    AllocateWalls();
+    SpawnDungeon();
     
   }
   
